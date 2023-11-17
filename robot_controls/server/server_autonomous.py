@@ -65,12 +65,12 @@ def handle_frame_commands(client_socket):
     while True:
         if controller.command != "":
             if controller.command != controller.last_command:
-                if controller.command == "bark":
-                    bark_socket.send(controller.command.encode())
-                else:
-                    client_socket.send(controller.command.encode())
+                client_socket.send(controller.command.encode())
                 controller.last_command = controller.command
         time.sleep(0.1)
+
+def bark():
+    bark_socket.send("bark".encode())
 
 
 # Start a thread to handle the command client
@@ -141,13 +141,7 @@ while True:
             print("Crack found")
             cv2.imshow("Crack", crack)
             crack_counter = 0
-
-            if controller.last_command == "bark":
-                controller.command = "forward"
-            else:
-                controller.command = "stop"
-                controller.command = "bark"
-                start_timer(1)
+            bark()
 
     if tape_found and controller.ready:
         start_timer(10)

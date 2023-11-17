@@ -139,7 +139,6 @@ def thresh_detector_2(frame):
 
     # Iterate through contours and draw bounding boxes
     thresh = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
-    i = 0
     for contour in contours:
         box = cv2.boxPoints(cv2.minAreaRect(contour))
         box = np.intp(box)
@@ -166,7 +165,6 @@ def thresh_detector_2(frame):
             min_height < hyp2 < max_height) or \
             (min_width < hyp2 < max_width and
              min_height < hyp1 < max_height):
-            i += 1
 
             tilebox = np.array([
                 [x1, y1],
@@ -184,16 +182,9 @@ def thresh_detector_2(frame):
             cv2.drawContours(frame, [box], 0, (0, 0, 255), 2)
             tile = image_processors.crop_rect_rotate(tile, tilebox)
             is_cut = image_processors.image_is_cut(tile)
-            #if is_cut:
-            #    i -= 1
-            #    continue
-            #crack_found = crack_detector.detect_crack4(tile)
-            #crack_found = crack_detector.mask_detector(tile)
+            if is_cut:
+                continue
             crack_found, crack = crack_detector.contour_detector_thresh(tile)
-            #cv2.imshow(f"crack_{i}", crack)
-        else:
-            #cv2.drawContours(frame, [box], 0, (0, 255, 0), 2)
-            pass
 
     thresh_writer.write(thresh)
 
