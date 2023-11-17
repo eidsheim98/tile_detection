@@ -89,7 +89,7 @@ def histogram_detector(tile):
                 cv2.drawContours(tile, [contour], 0, (0, 255, 0), 2)
 
     #cv2.imshow("tilethresh", thresh)
-    #cv2.imshow("crack", tile)
+    cv2.imshow("masked", masked_thresh)
 
     return crack_detected, tile
 

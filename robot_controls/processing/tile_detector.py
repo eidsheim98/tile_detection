@@ -184,7 +184,7 @@ def thresh_detector_2(frame):
             is_cut = image_processors.image_is_cut(tile)
             if is_cut:
                 continue
-            crack_found, crack = crack_detector.contour_detector_thresh(tile)
+            crack_found, crack = crack_detector.histogram_detector(tile)
 
     thresh_writer.write(thresh)
 
