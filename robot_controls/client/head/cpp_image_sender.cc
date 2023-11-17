@@ -1,11 +1,6 @@
 /**
-  * @file example_getRectFrame.cc
-  * @brief This file is part of UnitreeCameraSDK.
-  * @details This example that how to get depth frame
-  * @author ZhangChunyang
-  * @date  2021.07.31
-  * @version 1.0.1
-  * @copyright Copyright (c) 2020-2021, Hangzhou Yushu Technology Stock CO.LTD. All Rights Reserved.
+    C++ client that runs on the Unitree Go1 Edu head unit
+    Takes pictures using the Unitree Camera SDK, and sends it to the python server
   */
 
 #include <UnitreeCameraSDK.hpp>
