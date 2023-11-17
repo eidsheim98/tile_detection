@@ -122,8 +122,10 @@ Nikolai tile processor
 FOR THE LOVE OF GOD DO NOT TOUCH THIS
 """
 def thresh_detector_2(frame):
-    crack_found = False
-    crack = None
+    crack_found_thresh = False
+    crack_thresh = None
+    crack_found_canny = False
+    crack_canny = None
     frame_copy = frame.copy()
     # frame = cv2.resize(frame, (480, 400))
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -139,7 +141,6 @@ def thresh_detector_2(frame):
 
     # Iterate through contours and draw bounding boxes
     thresh = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
-    i = 0
     for contour in contours:
         box = cv2.boxPoints(cv2.minAreaRect(contour))
         box = np.intp(box)
@@ -166,7 +167,6 @@ def thresh_detector_2(frame):
             min_height < hyp2 < max_height) or \
             (min_width < hyp2 < max_width and
              min_height < hyp1 < max_height):
-            i += 1
 
             tilebox = np.array([
                 [x1, y1],
@@ -184,13 +184,12 @@ def thresh_detector_2(frame):
             cv2.drawContours(frame, [box], 0, (0, 0, 255), 2)
             tile = image_processors.crop_rect_rotate(tile, tilebox)
             is_cut = image_processors.image_is_cut(tile)
-            #if is_cut:
-            #    i -= 1
-            #    continue
+            if is_cut:
+                continue
             #crack_found = crack_detector.detect_crack4(tile)
             #crack_found = crack_detector.mask_detector(tile)
-            crack_found, crack = crack_detector.contour_detector_thresh(tile)
-            #cv2.imshow(f"crack_{i}", crack)
+            crack_found_thresh, crack_thresh = crack_detector.contour_detector_thresh(tile)
+            crack_found_canny, crack_canny = crack_detector.contour_detector_canny(tile)
         else:
             #cv2.drawContours(frame, [box], 0, (0, 255, 0), 2)
             pass
@@ -200,4 +199,4 @@ def thresh_detector_2(frame):
     cv2.imshow('Frame', frame)
     cv2.imshow('Thresh', thresh)
 
-    return crack_found, crack
+    return crack_found_thresh, crack_thresh, crack_found_canny, crack_canny

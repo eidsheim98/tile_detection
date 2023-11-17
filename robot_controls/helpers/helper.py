@@ -8,7 +8,7 @@ def create_videowriter(outputfolder, size):
                              cv2.VideoWriter.fourcc("M", "J", "P", "G"), 10, size)
     return writer
 
-def save_crack(frame):
+def save_crack(frame, name):
     now = datetime.datetime.now().timestamp()
-    cv2.imwrite(f"../../output/img/cracks/{now}.jpg", frame)
+    cv2.imwrite(f"../../output/img/cracks/{name}_{now}.jpg", frame)
 

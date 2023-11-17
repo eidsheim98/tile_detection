@@ -65,12 +65,12 @@ def handle_frame_commands(client_socket):
     while True:
         if controller.command != "":
             if controller.command != controller.last_command:
-                if controller.command == "bark":
-                    bark_socket.send(controller.command.encode())
-                else:
-                    client_socket.send(controller.command.encode())
+                client_socket.send(controller.command.encode())
                 controller.last_command = controller.command
         time.sleep(0.1)
+
+def bark():
+    bark_socket.send("bark".encode())
 
 
 # Start a thread to handle the command client
@@ -97,12 +97,15 @@ def start_timer(seconds):
 
 
 crack_counter = 0
+canny_counter = 0
 
 
 def _count_thread():
     global crack_counter
+    global canny_counter
     while True:
         crack_counter = 0
+        canny_counter = 0
         time.sleep(1)
 
 
@@ -130,24 +133,29 @@ while True:
     # ------------------------ Processing is handled here -----------------------------
 
     tape_found, frame2 = tape_detector.tape_found(frame)
-    crack_found, crack = tile_detector.thresh_detector_2(frame)
+    crack_found_thresh, crack_thresh, crack_found_canny, crack_canny = tile_detector.thresh_detector_2(frame)
 
-    if crack is not None and controller.command != "turn":
-        if crack_found:
+    if crack_thresh is not None and controller.command != "turn":
+        if crack_found_thresh:
             crack_counter += 1
 
         if crack_counter >= 3:
-            helper.save_crack(crack)
+            helper.save_crack(crack_thresh, "thresh")
             print("Crack found")
-            cv2.imshow("Crack", crack)
+            cv2.imshow("Crack", crack_thresh)
             crack_counter = 0
+            bark()
 
-            if controller.last_command == "bark":
-                controller.command = "forward"
-            else:
-                controller.command = "stop"
-                controller.command = "bark"
-                start_timer(1)
+    if crack_canny is not None and controller.command != "turn":
+        if crack_found_canny:
+            canny_counter += 1
+
+        if canny_counter >= 3:
+            helper.save_crack(crack_canny, "canny")
+            print("Crack found")
+            cv2.imshow("Crack", crack_canny)
+            canny_counter = 0
+            bark()
 
     if tape_found and controller.ready:
         start_timer(10)

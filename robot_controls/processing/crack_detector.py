@@ -125,7 +125,13 @@ def contour_detector_canny(tile):
 
     gray = cv2.dilate(gray, None, iterations=1)
     #thresh = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 13, 4)
-    thresh = cv2.Canny(gray, 10, 17)
+    """for i in range(7,50):
+        for j in range(7, 50):
+            thresh = cv2.Canny(gray, i, j)
+            cv2.imshow("test", thresh)
+            print(i, j)
+            cv2.waitKey(0)"""
+    thresh = cv2.Canny(gray, 20, 50)
 
     mask = np.zeros_like(gray)
     cv2.rectangle(mask, (15, 15), (mask.shape[1]-15, mask.shape[0]-15), 255, -1)
@@ -138,14 +144,13 @@ def contour_detector_canny(tile):
         return False, None
 
     for contour in contours:
-        if cv2.contourArea(contour) > 10:
-            #print("Crack found")
+        if cv2.contourArea(contour) > 20:
             crack_detected = True
             cv2.drawContours(tile, [contour], -1, (0, 255, 0), 2)
-            print("Craaaaaaaaaaack")
+            cv2.imshow("crack", tile)
 
-    cv2.imshow("tilethresh", thresh)
-    cv2.imshow("crack", tile)
+    cv2.imshow("thresh", thresh)
+    cv2.imshow("masked", masked_thresh)
 
     return crack_detected, tile
 
@@ -153,7 +158,6 @@ def contour_detector_thresh(tile):
     crack_detected = False
     gray = cv2.cvtColor(tile, cv2.COLOR_BGR2GRAY)
 
-    #blur = cv2.bilateralFilter(gray, 9, 75, 75)
     sharpen = cv2.dilate(gray, None, iterations=1)
     thresh = cv2.adaptiveThreshold(sharpen, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 13, 3)
 
@@ -169,18 +173,7 @@ def contour_detector_thresh(tile):
 
     for contour in contours:
         if cv2.contourArea(contour) > 20:
-            #print("Crack found")
             crack_detected = True
             cv2.drawContours(tile, [contour], 0, (0, 255, 0), 2)
-            #print("Craaaaaaaaaaack")
-
-    #cv2.imshow("tilethresh", thresh)
-    #cv2.imshow("crack", tile)
 
     return crack_detected, tile
-
-"""
-Nikolai crack detector using pixels
-"""
-def points_detector(image):
-    return False
