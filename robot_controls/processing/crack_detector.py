@@ -66,7 +66,6 @@ def histogram_detector(tile):
     crack_detected = False
     gray = cv2.cvtColor(tile, cv2.COLOR_BGR2GRAY)
 
-    #blur = cv2.bilateralFilter(gray, 9, 75, 75)
     sharpen = cv2.dilate(gray, None, iterations=1)
     thresh = cv2.adaptiveThreshold(sharpen, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 13, 3)
 
@@ -87,9 +86,6 @@ def histogram_detector(tile):
             if cv2.contourArea(contour) > 20:
                 crack_detected = True
                 cv2.drawContours(tile, [contour], 0, (0, 255, 0), 2)
-
-    #cv2.imshow("tilethresh", thresh)
-    cv2.imshow("masked", masked_thresh)
 
     return crack_detected, tile
 
