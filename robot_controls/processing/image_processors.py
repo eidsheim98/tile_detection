@@ -65,8 +65,8 @@ def image_is_cut(image):
 
 def tile_out_of_bounds(shape, box):
     for coord in box:
-        if 0 < coord[0] < shape[1] or 0 < coord[1] < shape[0]:
-            return False
-    return True
+        if not (0 < coord[0] < shape[1] and 0 < coord[1] < shape[0]):
+            return True
+    return False
 
 

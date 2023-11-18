@@ -144,7 +144,6 @@ def contour_detector_thresh(tile):
     crack_detected = False
     gray = cv2.cvtColor(tile, cv2.COLOR_BGR2GRAY)
 
-
     sharpen = cv2.dilate(gray, None, iterations=1)
     thresh = cv2.adaptiveThreshold(sharpen, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 13, 3)
 
@@ -152,6 +151,8 @@ def contour_detector_thresh(tile):
     cv2.rectangle(mask, (15, 15), (mask.shape[1]-15, mask.shape[0]-15), 255, -1)
 
     masked_thresh = cv2.bitwise_and(thresh, thresh, mask=mask)
+
+    cv2.imshow("Tile Threshold", masked_thresh)
 
     contours, _ = cv2.findContours(masked_thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 

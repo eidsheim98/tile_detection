@@ -25,6 +25,7 @@ def tape_found(image):
     # Create a mask for the yellow color
     yellow_mask = cv2.inRange(hsv_image, lower_yellow, upper_yellow)
 
+    cv2.imshow("Tape", image)
     videowriter.write(image)
 
     # Check if yellow color is detected

@@ -3,7 +3,7 @@ import numpy
 import cv2
 import socket
 import threading
-from robot_controls.server import ssh
+import ssh
 from robot_controls.processing import tile_detector
 from robot_controls.helpers import helper
 
@@ -68,7 +68,7 @@ while True:
                 crack_counter += 1
 
             if crack_counter >= 3:
-                helper.save_crack(crack)
+                #helper.save_crack(crack)
                 print("Crack found")
                 cv2.imshow("Crack", crack)
                 bark()

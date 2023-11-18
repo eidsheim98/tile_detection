@@ -118,8 +118,7 @@ def contour_detector(frame):
 
 
 """
-Nikolai tile processor
-FOR THE LOVE OF GOD DO NOT TOUCH THIS
+The working modified thresh detector
 """
 def thresh_detector_2(frame):
     crack_found = False
@@ -177,13 +176,17 @@ def thresh_detector_2(frame):
             # tile = thresh[y-165:y+h-165, x:x+w]
             if tile.shape[0] == 0 or tile.shape[1] == 0:
                 continue
-            if image_processors.tile_out_of_bounds(frame.shape, box):
-                continue
+
             cv2.drawContours(frame, [box], 0, (0, 0, 255), 2)
+            cv2.imshow("Not Rotated", tile)
+
             tile = image_processors.crop_rect_rotate(tile, tilebox)
-            is_cut = image_processors.image_is_cut(tile)
-            if is_cut:
-                continue
+            cv2.imshow("Rotated", tile)
+
+            #if image_processors.tile_out_of_bounds(frame.shape, box):
+            #    cv2.imshow("Out of bounds", tile)
+            #    continue
+
             crack_found, crack = crack_detector.histogram_detector(tile)
 
     thresh_writer.write(thresh)
