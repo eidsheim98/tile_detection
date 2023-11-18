@@ -98,14 +98,17 @@ def start_timer(seconds):
 
 crack_counter = 0
 canny_counter = 0
+hist_counter = 0
 
 
 def _count_thread():
     global crack_counter
     global canny_counter
+    global hist_counter
     while True:
         crack_counter = 0
         canny_counter = 0
+        hist_counter = 0
         time.sleep(1)
 
 
@@ -133,7 +136,7 @@ while True:
     # ------------------------ Processing is handled here -----------------------------
 
     tape_found, frame2 = tape_detector.tape_found(frame)
-    crack_found_thresh, crack_thresh, crack_found_canny, crack_canny = tile_detector.thresh_detector_2(frame)
+    crack_found_thresh, crack_thresh, crack_found_canny, crack_canny, crack_found_hist, crack_hist = tile_detector.thresh_detector_2(frame)
 
     if crack_thresh is not None and controller.command != "turn":
         if crack_found_thresh:
@@ -155,7 +158,18 @@ while True:
             print("Crack found")
             cv2.imshow("Crack", crack_canny)
             canny_counter = 0
-            bark()
+            #bark()
+
+    if crack_hist is not None and controller.command != "turn":
+        if crack_found_hist:
+            hist_counter += 1
+
+        if hist_counter >= 3:
+            helper.save_crack(crack_hist, "hist")
+            print("Crack found")
+            cv2.imshow("Crack", crack_hist)
+            hist_counter = 0
+            #bark()
 
     if tape_found and controller.ready:
         start_timer(10)

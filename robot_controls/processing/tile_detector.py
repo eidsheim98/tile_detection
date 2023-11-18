@@ -126,6 +126,8 @@ def thresh_detector_2(frame):
     crack_thresh = None
     crack_found_canny = False
     crack_canny = None
+    crack_hist = None
+    crack_found_hist = None
     frame_copy = frame.copy()
     # frame = cv2.resize(frame, (480, 400))
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -190,6 +192,7 @@ def thresh_detector_2(frame):
             #crack_found = crack_detector.mask_detector(tile)
             crack_found_thresh, crack_thresh = crack_detector.contour_detector_thresh(tile)
             crack_found_canny, crack_canny = crack_detector.contour_detector_canny(tile)
+            crack_found_hist, crack_hist = crack_detector.histogram_detector(tile)
         else:
             #cv2.drawContours(frame, [box], 0, (0, 255, 0), 2)
             pass
@@ -199,4 +202,4 @@ def thresh_detector_2(frame):
     cv2.imshow('Frame', frame)
     cv2.imshow('Thresh', thresh)
 
-    return crack_found_thresh, crack_thresh, crack_found_canny, crack_canny
+    return crack_found_thresh, crack_thresh, crack_found_canny, crack_canny, crack_found_hist, crack_hist
