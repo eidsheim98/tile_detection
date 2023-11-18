@@ -123,7 +123,6 @@ while True:
         d = numpy.frombuffer(stringData, dtype="uint8")
         frame = cv2.imdecode(d, -1)
         global_frame = frame
-        videowriter.write(frame)
     except:
         continue
 
@@ -154,6 +153,7 @@ while True:
             print("Forward")
 
     # ------------------------ End processing -----------------------------
+    videowriter.write(frame)
 
     cv2.waitKey(1)
     data = b''
