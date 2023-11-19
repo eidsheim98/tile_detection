@@ -4,6 +4,7 @@ import numpy as np
 from robot_controls.processing import crack_detector
 from robot_controls.processing import image_processors
 from robot_controls.helpers import helper
+from robot_controls.helpers.tile import TileInfo
 
 thresh_writer = helper.create_videowriter("thresh", (463, 209))
 
@@ -115,14 +116,11 @@ def contour_detector(frame):
     cv2.imshow('Original Canny Edges', canny_org)
     cv2.imshow('Template Canny Edges', canny_temp)
 
-
-
 """
 The working modified thresh detector
 """
 def thresh_detector_2(frame):
-    crack_found = False
-    crack = None
+    tiles = []
     frame_copy = frame.copy()
     # frame = cv2.resize(frame, (480, 400))
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -180,18 +178,17 @@ def thresh_detector_2(frame):
             cv2.drawContours(frame, [box], 0, (0, 0, 255), 2)
             cv2.imshow("Not Rotated", tile)
 
-            tile = image_processors.crop_rect_rotate(tile, tilebox)
-            cv2.imshow("Rotated", tile)
+            #tile = image_processors.crop_rect_rotate(tile, tilebox)
+            #cv2.imshow("Rotated", tile)
 
-            #if image_processors.tile_out_of_bounds(frame.shape, box):
-            #    cv2.imshow("Out of bounds", tile)
-            #    continue
+            tile_info = TileInfo(tile, (x, y), box)
+            tiles.append(tile_info)
 
-            crack_found, crack = crack_detector.histogram_detector(tile)
+            #crack_found, crack, ret = crack_detector.histogram_detector(tile, frame, x, y)
+            #if ret is not None:
+            #    frame = ret
+
 
     thresh_writer.write(thresh)
 
-    cv2.imshow('Frame', frame)
-    cv2.imshow('Thresh', thresh)
-
-    return crack_found, crack
+    return tiles

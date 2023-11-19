@@ -3,6 +3,7 @@ import numpy as np
 
 from robot_controls.processing import image_processors
 from robot_controls.helpers import helper
+from robot_controls.helpers.tile import TileInfo
 
 
 """
@@ -62,7 +63,7 @@ def detect_crack4(img):
         return True, img
     return False, img
 
-def histogram_detector(tile):
+def histogram_detector(tile, frame, x, y):
     crack_detected = False
     gray = cv2.cvtColor(tile, cv2.COLOR_BGR2GRAY)
 
@@ -79,15 +80,16 @@ def histogram_detector(tile):
     contours, _ = cv2.findContours(masked_thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
     if len(contours) <= 0:
-        return False, None
+        return False, None, None
 
     if hist_crack[0] > 50:
         for contour in contours:
             if cv2.contourArea(contour) > 20:
                 crack_detected = True
                 cv2.drawContours(tile, [contour], 0, (0, 255, 0), 2)
+                cv2.drawContours(frame, [contour], 0, (0, 255, 0), 2, offset=(x, y))
 
-    return crack_detected, tile
+    return crack_detected, tile, frame
 
 
 """
@@ -140,9 +142,8 @@ def contour_detector_canny(tile):
 
     return crack_detected, tile
 
-def contour_detector_thresh(tile):
-    crack_detected = False
-    gray = cv2.cvtColor(tile, cv2.COLOR_BGR2GRAY)
+def contour_detector_thresh(tile : TileInfo):
+    gray = cv2.cvtColor(tile.image, cv2.COLOR_BGR2GRAY)
 
     sharpen = cv2.dilate(gray, None, iterations=1)
     thresh = cv2.adaptiveThreshold(sharpen, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 13, 3)
@@ -161,7 +162,7 @@ def contour_detector_thresh(tile):
 
     for contour in contours:
         if cv2.contourArea(contour) > 20:
-            crack_detected = True
-            cv2.drawContours(tile, [contour], 0, (0, 255, 0), 2)
+            tile.has_crack = True
+            cv2.drawContours(tile.image, [contour], 0, (0, 255, 0), 2)
 
-    return crack_detected, tile
+    return tile

@@ -31,11 +31,11 @@ def process_image(image):
 """
 Rotate and crop an image
 """
-def crop_rect_rotate(img, box):
+def crop_rect_rotate(tile):
     try:
-        rect = cv2.minAreaRect(box)
+        rect = cv2.minAreaRect(tile.box)
     except:
-        print(box)
+        print(tile.box)
         return None, None
 
     # get the parameter of the small rectangle
@@ -43,12 +43,12 @@ def crop_rect_rotate(img, box):
     center, size = tuple(map(int, center)), tuple(map(int, size))
 
     # get row and col num in img
-    height, width = img.shape[0], img.shape[1]
+    height, width = tile.image.shape[0], tile.image.shape[1]
 
     # calculate the rotation matrix
     M = cv2.getRotationMatrix2D(center, angle, 1)
     # rotate the original image
-    img_rot = cv2.warpAffine(img, M, (width, height), flags=cv2.INTER_LINEAR)
+    img_rot = cv2.warpAffine(tile.image, M, (width, height), flags=cv2.INTER_LINEAR)
 
     # now rotated rectangle becomes vertical, and we crop it
     img_crop = cv2.getRectSubPix(img_rot, size, center)
