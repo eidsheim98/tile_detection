@@ -1,6 +1,6 @@
 # Tile detection using machine vision systems and the Unitree Go1 Edu robotic dog
 
-This code repository contains the source code and test data from the project
+This code repository contains the source code and test data for our school project.
 The code is only tested on Linux, (specifically KDE Neon, but Ubuntu should be fine) as we had problems connecting to the dog using other operating systems
 
 ## Prerequisites
