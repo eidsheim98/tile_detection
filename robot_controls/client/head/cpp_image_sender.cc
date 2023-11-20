@@ -15,6 +15,7 @@
 
 int main(int argc, char *argv[]){
 
+    // Setup of the dogs camera, using the SDK
     int deviceNode = 0; ///< default 0 -> /dev/video0
     cv::Size frameSize(1856, 800); ///< default frame size 1856x800
     int fps = 30; ///< default camera fps: 30
@@ -28,6 +29,7 @@ int main(int argc, char *argv[]){
             fps = std::atoi(argv[4]);
     }
 
+    // Initialization of the camera
     UnitreeCamera cam(deviceNode); ///< init camera by device node number
     if(!cam.isOpened())   ///< get camera open state
         exit(EXIT_FAILURE);
@@ -37,34 +39,36 @@ int main(int argc, char *argv[]){
     cam.setRectFrameSize(cv::Size(frameSize.width >> 2, frameSize.height >> 1)); ///< set camera rectify frame size
     cam.startCapture(); ///< disable image h264 encoding and share memory sharing
 
+
+    // Create socket parameters
     int sock = 0, valread;
     struct sockaddr_in serv_addr;
 
-
-    // Create socket
+    // Create socket and set parameters
     memset(&serv_addr, 0, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_port = htons(8887);
     serv_addr.sin_addr.s_addr = inet_addr("192.168.12.134");
 
+    // Make sure that the socket was created correctly
     if ((sock = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
     {
         printf("\n Socket creation error \n");
         return -1;
     }
 
-
     usleep(500000);
     while(cam.isOpened()){
+        // Gets the images from the cameras
         cv::Mat left,right,feim;
         if(!cam.getRectStereoFrame(left,right,feim)){ ///< get longlat rectify left,right and fisheye rectify feim
             usleep(1000);
             continue;
         }
 
+    // Setup the buffer and encoding for sending the image
     std::vector<uchar> buf;
     cv::imencode(".jpg",feim,buf);
-
     const char *data = reinterpret_cast<char*>(buf.data());
 
     int strLength = buf.size();
@@ -74,16 +78,18 @@ int main(int argc, char *argv[]){
     char strSize[strSizeTmp.length()+1];
     strcpy(strSize, strSizeTmp.c_str());
 
-    //Send image size and image data
+    //Send image size first
     sendto(sock, (const char *)strSize, 16,
         MSG_CONFIRM, (const struct sockaddr *) &serv_addr,
             sizeof(serv_addr));
+
+    // Send the actual image
     sendto(sock, (const char *)data, strLength,
         MSG_CONFIRM, (const struct sockaddr *) &serv_addr,
             sizeof(serv_addr));
 
         char key = cv::waitKey(10);
-        if(key == 27) // press ESC key
+        if(key == 27) // ESC key
            break;
     }
 

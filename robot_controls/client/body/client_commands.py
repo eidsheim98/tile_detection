@@ -1,6 +1,6 @@
 """
 Runs on the robot body
-Receives the data from the server
+Receives the data from the server and forwards them to processing
 """
 
 import socket
@@ -14,6 +14,10 @@ server_port = 8885
 command_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 def send_response(response):
+    """
+    Method to send a response to the server. Currently not in use
+    :param response: The response to send to the server
+    """
     command_socket.send(response.encode())
 
 # Connect to the server
@@ -23,11 +27,13 @@ controller = DogController(command_socket)
 
 print("Ready")
 
+
 while True:
+    # Get data from the server
     command = command_socket.recv(1024).decode()
     if not command:
         break
-    # Add your command handling logic here
+    # Commands are handled here
     print(f"Received command: {command}")
     controller.process(command)
 

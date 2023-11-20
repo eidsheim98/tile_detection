@@ -7,7 +7,7 @@ import cv2
 
 from robot_controls.helpers import helper
 
-videowriter = helper.create_videowriter("tape", (463, 209))
+#videowriter = helper.create_videowriter("tape", (103, 208))
 
 def tape_found(image):
     # Convert the image to the HSV color space
@@ -26,7 +26,7 @@ def tape_found(image):
     yellow_mask = cv2.inRange(hsv_image, lower_yellow, upper_yellow)
 
     cv2.imshow("Tape", image)
-    videowriter.write(image)
+    #videowriter.write(image)
 
     # Check if yellow color is detected
     if np.any(yellow_mask > 0):

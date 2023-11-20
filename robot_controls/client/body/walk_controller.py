@@ -1,4 +1,8 @@
-#!/usr/bin/python
+"""
+The processor that makes the dog perform actions based on commands
+Is based on the dog SDK code
+Located on the dog head
+"""
 
 import sys
 import time
@@ -19,15 +23,26 @@ class DogController():
         self._start_radians = 0.0
 
     def _change_dir(self):
+        """
+        Changes the direction the dog will turn
+        """
         if self._next_rotation_dir == "right":
             self._next_rotation_dir = "left"
         else:
             self._next_rotation_dir = "right"
 
     def get_status(self):
+        """
+        Get the current status of the dog, e.g walking or turning
+        """
         return self._status
 
     def process(self, command):
+        """
+        Checks that the incoming command is valid, and forwards it if it is
+        :param command: The command to process
+        """
+
         if command == "forward":
             print("Moving forward")
         elif command == "turn":
@@ -46,6 +61,10 @@ class DogController():
         self._status = command
 
     def calculate_adjustment(self):
+        """
+        Calculates the rotation the dog has to make to rotate correctly based on starting position
+        :return: The radians left to rotate
+        """
         if self._start_radians > 0:
             correct_radians = self._start_radians - math.pi
         else:
@@ -54,11 +73,18 @@ class DogController():
         return correct_radians
 
     def _start_runner(self):
+        """
+        Starts the main thread to run the robot in the loop
+        """
         t = Thread(target=self._run_bot)
         t.start()
 
     def _run_bot(self):
+        """
+        The main function running the robot dog
+        """
 
+        # Initialize all sensors
         HIGHLEVEL = 0xee
         LOWLEVEL = 0xff
 
@@ -69,15 +95,19 @@ class DogController():
         udp.InitCmdData(cmd)
         print("Dog ready")
 
+        # Run a loop
         while True:
             time.sleep(0.002)
 
+            # Initialize the start radians based on information from the IMU
             if self._start_radians == 0.0:
                 self._start_radians = state.imu.rpy[2]
 
             udp.Recv()
             udp.GetRecv(state)
 
+            # Reset more of the sensors
+            # This comes from the SDK
             cmd.mode = 0  # 0:idle, default stand      1:forced stand     2:walk continuously
             cmd.gaitType = 0
             cmd.speedLevel = 0
@@ -88,18 +118,30 @@ class DogController():
             cmd.yawSpeed = 0.0
             cmd.reserve = 0
 
-
+            """
+            Functionality to make the dog turn
+            This is done by calculating how far it is from turning pi radians 
+            To make sure it would stop at approximately pi radians and not just keep turning, we have set an upper and 
+            lower boundary that the rotated angle must be between to be accepted 
+            """
             if self._status == "turn":
+                # Get the current adjustment and set upper and lower level
                 c = self.calculate_adjustment()
                 lower = c - math.pi * 0.01
                 upper = c + math.pi * 0.01
 
+                # If the current rotated state is between these levels, the rotation is a success
                 if lower < state.imu.rpy[2] < upper or \
                         lower > state.imu.rpy[2] > upper:
                     print("Adjusted")
+
+                    # Reset the start radians to this rotation and stop the turning of the dog
                     self._start_radians = c
                     self._status = "stop"
 
+                # The actual rotation is handled here
+                # If the rotated angle exceeds 90% of desired angle, slow down the rotation to make it
+                # more accurate
                 elif c - math.pi * 0.1 < state.imu.rpy[2] < c + math.pi * 0.1 or \
                         c - math.pi * 0.1 > state.imu.rpy[2] > c + math.pi * 0.1:
                     cmd.mode = 2
@@ -115,6 +157,8 @@ class DogController():
                         cmd.yawSpeed = -math.pi / 8
                         cmd.velocity = [0.1, 0.0]  # -1  ~ +1
                     cmd.footRaiseHeight = 0.1
+
+                # The basic rotation of the dog before it reaches 90% finished rotation
                 else:
                     cmd.mode = 2
                     cmd.gaitType = 1
@@ -130,7 +174,7 @@ class DogController():
                         cmd.velocity = [0.2, 0.5]  # -1  ~ +1
                     cmd.footRaiseHeight = 0.1
 
-            # Straight OK
+            # Making the dog walk straight
             elif self._status == "forward":
                 cmd.mode = 2
                 cmd.gaitType = 1
@@ -138,13 +182,14 @@ class DogController():
                 cmd.footRaiseHeight = 0.1
                 cmd.euler[0] *= -1
 
+            # Calibrate the sensors
             elif self._status == "calibrate":
                 self._start_radians = state.imu.rpy[2]
                 print("Start position reset")
                 self._status = ""
 
 
-            # Stop
+            # Stop the dog
             else:
                 cmd.mode = 0
 

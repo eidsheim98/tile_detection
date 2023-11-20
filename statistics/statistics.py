@@ -2,11 +2,19 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 class Statistic():
+    """
+    The statistic class
+    """
     def __init__(self, name, data):
         self.name = name
         self.data = data
 
 def load_csv(filename):
+    """
+    Loads the csv file and converts it to a dict
+    :param filename: The relative filepath of the file from the statistics/ directory
+    :return: The dictionary containing the data
+    """
     with open(f"data/{filename}", "r") as file:
         lines = file.readlines()
         lines = [line.replace("\n","") for line in lines]
@@ -16,6 +24,9 @@ def load_csv(filename):
 
 
 def barchart():
+    """
+    Produces a statistical bar chart
+    """
     thresh_data = load_csv("performance/thresh.csv")
     hist_data = load_csv("performance/hist.csv")
     canny_data = load_csv("performance/canny.csv")
@@ -57,6 +68,9 @@ def barchart():
 
 
 def lighting():
+    """
+    Produces a histogram containing our performance data in different lighting
+    """
     thresh_data = load_csv("lighting/thresh.csv")
     hist_data = load_csv("lighting/hist.csv")
     canny_data = load_csv("lighting/canny.csv")
@@ -73,23 +87,33 @@ def lighting():
     # Set a wider figure size
     fig, axes = plt.subplots(2, 1, figsize=(12, 12), sharex=False)
 
+    # Set the width of the bars
+    bar_width = 0.2
+    x = np.arange(len(lux))
+
+    # Plot all three datasets with adjusted x-axis positions
+    axes[0].bar(x - bar_width, thresh_fe, width=bar_width, alpha=0.7, color='b', label='Thresh')
+    axes[0].bar(x, hist_fe, width=bar_width, color='g', alpha=0.7, label='Histogram',
+                tick_label=[str(int(x)) for x in lux])
+    axes[0].bar(x + bar_width, canny_fe, width=bar_width, alpha=0.7, color='r', label='Canny')
+
     # First subplot
-    axes[0].plot(lux, thresh_fe, label="Thresh")
-    axes[0].plot(lux, hist_fe, label="Histogram")
-    axes[0].plot(lux, canny_fe, label="Canny")
     axes[0].legend()
     axes[0].set_xlabel('Lux')
     axes[0].set_ylabel('Found / Expected')
     axes[0].set_title('Rate of found cracks vs expected finds in different lighting')
 
+    # Plot all three datasets with adjusted x-axis positions
+    axes[1].bar(x - bar_width, thresh_bad, width=bar_width, alpha=0.7, color='b', label='Thresh')
+    axes[1].bar(x, hist_bad, width=bar_width, color='g', alpha=0.7, label='Histogram',
+                tick_label=[str(int(x)) for x in lux])
+    axes[1].bar(x + bar_width, canny_bad, width=bar_width, alpha=0.7, color='r', label='Canny')
+
     # Second subplot
-    axes[1].plot(lux, thresh_bad, label="Thresh")
-    axes[1].plot(lux, hist_bad, label="Histogram")
-    axes[1].plot(lux, canny_bad, label="Canny")
     axes[1].legend()
     axes[1].set_xlabel('Lux')
-    axes[1].set_ylabel('Bad cracks')
-    axes[1].set_title('Bad cracks found in different lighting')
+    axes[1].set_ylabel('Found cracks that are not there')
+    axes[1].set_title('Found cracks that are not there in different lighting')
 
     plt.tight_layout()
     plt.savefig("plots/lighting.png")
